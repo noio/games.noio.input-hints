@@ -1,0 +1,12 @@
+TODO:
+
+[x] Auto update when control scheme changes (this is like the most important one)
+[ ] Deal with (fallback) text, if Icon not found.
+[ ] Provide hooks for looping fallback text through Localization (again)
+[x] Cache generated variables
+[x] Disambiguate between X (keyboard) and X (Gamepad), don't just look up the BindingString directly
+[x] Provide "Search" button for sprite mappings that goes through all sprite maps
+[ ] Editor-time "Test Device" dropdown
+[x] Make UI (IMGUI or UI Toolkit??)
+[ ] Button to set up default Global Localization Variables + Input Action Variable Group
+[x] Auto select SpriteCategory when adding new mapping from missing.
