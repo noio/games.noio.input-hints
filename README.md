@@ -1,6 +1,6 @@
 # Input Hints
 
-![Preview](Docs~/preview.gif)
+![Preview](Docs~/preview.gif)![Preview](Docs~/localize_string_event.png)
 
 Input hints are little prompts in game that display the button, key or action that the player needs to perform to
 execute a certain action. 
