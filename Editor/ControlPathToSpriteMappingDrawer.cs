@@ -66,8 +66,8 @@ namespace games.noio.InputHints.Editor
                     FocusType.Keyboard))
             {
                 var menu = new GenericMenu();
-                var mapping = property.serializedObject.targetObject as InputHintsConfig;
-                foreach (var sheetKey in mapping.GetSpriteCategories())
+                var config = property.serializedObject.targetObject as InputHintsConfig;
+                foreach (var sheetKey in config.GetSpriteCategories())
                 {
                     menu.AddItem(new GUIContent(sheetKey), false, () =>
                     {

@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Localization.SmartFormat.Core.Extensions;
 using UnityEngine.Localization.SmartFormat.PersistentVariables;
 using UnityEngine.Serialization;
+using Object = UnityEngine.Object;
 
 namespace  games.noio.InputHints
 {
@@ -21,6 +22,11 @@ namespace  games.noio.InputHints
         #endregion
 
         Dictionary<string, InputActionVariable> _cachedVariables;
+        public InputHintsConfig Config
+        {
+            get => _config;
+            set => _config = value;
+        }
 
         #region INTERFACE IMPLEMENTATIONS
 
@@ -28,9 +34,7 @@ namespace  games.noio.InputHints
         {
             if (_cachedVariables == null)
             {
-                InputHints.UsedDeviceChanged += OnValueChanged;
                 _config.Changed += OnValueChanged;
-                
                 _cachedVariables = new Dictionary<string, InputActionVariable>();
             }
 

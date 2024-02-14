@@ -10,7 +10,6 @@ namespace games.noio.InputHints.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var spriteCategoryProp = property.FindPropertyRelative("_spriteCategory");
-            var spriteAssetNameProp = property.FindPropertyRelative("_spriteAssetName");
             var spriteAssetProp = property.FindPropertyRelative("_spriteAsset");
 
             // Using BeginProperty / EndProperty on the parent property means that

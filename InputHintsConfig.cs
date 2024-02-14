@@ -12,7 +12,7 @@ using UnityEngine.Localization.Settings;
 
 namespace games.noio.InputHints
 {
-    [CreateAssetMenu(menuName = "Noio/Input Hints/Config")]
+    [CreateAssetMenu(menuName = "Noio/Input Hints Config")]
     public class InputHintsConfig : ScriptableObject
     {
         public event Action Changed;
@@ -29,6 +29,7 @@ namespace games.noio.InputHints
         #endregion
 
         Dictionary<Guid, InputActionVariable> _generatedVariables;
+        ControlType _usedControlType;
 
         #region PROPERTIES
 
@@ -36,18 +37,36 @@ namespace games.noio.InputHints
 
         #endregion
 
-        public string GetSprite(InputAction action, bool isRedPossum = true)
+        #region MONOBEHAVIOUR METHODS
+
+        void OnEnable()
         {
-            var usedDevice = isRedPossum ? InputHints.UsedDevice : InputHints.SecondaryUsedDevice;
+            InputHints.UsedDeviceChanged += HandleUsedDeviceChanged;
+            Debug.Log($"F{Time.frameCount} OnEnable");
+        }
 
-            var controlType = GetControlType(usedDevice);
-            var bindingIndex = action.GetBindingIndex(controlType.InputControlScheme);
+        void OnDisable()
+        {
+            InputHints.UsedDeviceChanged -= HandleUsedDeviceChanged;
+            Debug.Log($"F{Time.frameCount} OnDisable");
+        }
 
+        #endregion
+
+        public string GetSprite(InputAction action)
+        {
+            if (_usedControlType == null || _usedControlType.IsEmpty)
+            {
+                _usedControlType = GetControlType(InputHints.UsedDevice);
+            }
+            
+            var bindingIndex = action.GetBindingIndex(_usedControlType.InputControlScheme);
+            
             if (bindingIndex <= -1)
             {
 #if UNITY_EDITOR
                 Debug.LogWarning($"No binding found for \"{action.name}\" " +
-                                 $"with Control Scheme \"{controlType.InputControlScheme}\"");
+                                 $"with Control Scheme \"{_usedControlType.InputControlScheme}\"");
 #endif
                 return $"[{action.name}]";
             }
@@ -79,7 +98,7 @@ namespace games.noio.InputHints
                      * by the current ControlType
                      */
                     var asset =
-                        controlType.SpriteAssets.FirstOrDefault(
+                        _usedControlType.SpriteAssets.FirstOrDefault(
                             m => m.SpriteCategory == sprite.SpriteCategory);
 
                     if (asset == null)
@@ -93,15 +112,37 @@ namespace games.noio.InputHints
 
 #if UNITY_EDITOR
             Debug.LogWarning($"[No sprite found for \"{controlPath}\"]", this);
-            if (_missingControlPaths.Any(mcp => mcp.Matches(controlPath, controlType)) == false)
+            if (_missingControlPaths.Any(mcp => mcp.Matches(controlPath, _usedControlType)) == false)
             {
                 Debug.Log("Adding missing control path entry");
-                _missingControlPaths.Add(new MissingControlPath(controlPath, controlType));
+                _missingControlPaths.Add(new MissingControlPath(controlPath, _usedControlType));
                 EditorUtility.SetDirty(this);
             }
 #endif
 
             return $"[{controlPath}]";
+        }
+
+        public void OnChanged()
+        {
+            Changed?.Invoke();
+        }
+
+        public void SetControlTypeFromDevicesString(string devicesString)
+        {
+            var index = _controlTypes.FindIndex(ct => ct.Devices == devicesString);
+
+            if (index > -1)
+            {
+                _usedControlType = _controlTypes[index];
+                Changed?.Invoke();
+            }
+        }
+
+        void HandleUsedDeviceChanged(InputDevice inputDevice)
+        {
+            _usedControlType = GetControlType(inputDevice);
+            Changed?.Invoke();
         }
 
         ControlType GetControlType(InputDevice usedDevice)
@@ -174,9 +215,11 @@ namespace games.noio.InputHints
             return spriteAssets;
         }
 
-        public IEnumerable<string> GetInputControlSchemes()
+        public IEnumerable<InputControlScheme> GetInputControlSchemes()
         {
-            return _inputActions.controlSchemes.Select(cs => cs.name);
+            return _inputActions == null
+                ? Enumerable.Empty<InputControlScheme>()
+                : _inputActions.controlSchemes;
         }
 
         public void AddSprite(string controlPath, string spriteName, string controlScheme)
@@ -249,9 +292,5 @@ namespace games.noio.InputHints
         #endregion
 
 #endif
-        public void OnChanged()
-        {
-            Changed?.Invoke();
-        }
     }
 }

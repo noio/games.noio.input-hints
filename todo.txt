@@ -8,5 +8,5 @@ TODO:
 [x] Provide "Search" button for sprite mappings that goes through all sprite maps
 [ ] Editor-time "Test Device" dropdown
 [x] Make UI (IMGUI or UI Toolkit??)
-[ ] Button to set up default Global Localization Variables + Input Action Variable Group
+[x] Button to set up default Global Localization Variables + Input Action Variable Group
 [x] Auto select SpriteCategory when adding new mapping from missing.

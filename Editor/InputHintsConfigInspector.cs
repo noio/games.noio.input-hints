@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
@@ -16,12 +17,16 @@ namespace games.noio.InputHints.Editor
     [CustomEditor(typeof(InputHintsConfig))]
     public class InputHintsConfigInspector : UnityEditor.Editor
     {
+        const string DefaultVariablesGroupAssetName = "global";
+        const string DefaultVariableGroup = "input";
+
         static readonly Lazy<GUIStyle> ExplanationTextStyle = new(() => new GUIStyle(EditorStyles.label)
         {
             wordWrap = true,
             fontSize = 11
         });
 
+        InputHintsConfig _config;
         SerializedProperty _scriptProp;
         SerializedProperty _inputActionsProp;
         SerializedProperty _spriteFormatProp;
@@ -42,6 +47,7 @@ namespace games.noio.InputHints.Editor
 
         void OnEnable()
         {
+            _config = target as InputHintsConfig;
             _scriptProp = serializedObject.FindProperty("m_Script");
             _inputActionsProp = serializedObject.FindProperty("_inputActions");
             _spriteFormatProp = serializedObject.FindProperty("_spriteFormat");
@@ -75,7 +81,7 @@ namespace games.noio.InputHints.Editor
                         {
                             var newCategory = TextInputDialog.Show("Add Sprite Category",
                                 "Enter name for new category:", "Gamepad");
-                            if ((target as InputHintsConfig).GetSpriteCategories().Contains(newCategory) ==
+                            if (_config.GetSpriteCategories().Contains(newCategory) ==
                                 false)
                             {
                                 // This is where you can customize the add operation
@@ -96,41 +102,40 @@ namespace games.noio.InputHints.Editor
                 {
                     drawElementCallback = (rect, index, isActive, isFocused) =>
                     {
-                        rect.xMin += 20;
                         var element = _controlTypesProp.GetArrayElementAtIndex(index);
-                        EditorGUI.PropertyField(rect, element, includeChildren: true);
+                        var devicesString = element.FindPropertyRelative("_devices").stringValue;
+
+                        /*
+                         * Draw PREVIEW button
+                         */
+                        var buttonRect = rect;
+                        buttonRect.yMin += 1;
+                        // buttonRect.height = EditorGUIUtility.singleLineHeight;
+                        buttonRect.width = 60;
+                        buttonRect.yMax -= 1;
+                        if (GUI.Button(buttonRect, "Preview"))
+                        {
+                            _config.SetControlTypeFromDevicesString(devicesString);
+                        }
+                        
+                        /*
+                         * DRAW REST OF FIELDS
+                         */
+                        var fieldsRect = rect;
+                        fieldsRect.xMin += 75;
+                        // fieldsRect.yMin += 2 + EditorGUIUtility.singleLineHeight;
+                        var label = string.IsNullOrEmpty(devicesString) ? "Default" : devicesString;
+                        EditorGUI.PropertyField(fieldsRect, element, new GUIContent(label), true);
+
                     },
-                    elementHeightCallback = (index) =>
+                    elementHeightCallback = index =>
                     {
                         var element = _controlTypesProp.GetArrayElementAtIndex(index);
                         return EditorGUI.GetPropertyHeight(element, true);
+                        // +
+                               // EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                     }
                 };
-        }
-
-        void CheckLocalizationVariablesAdded()
-        {
-            foreach (var source in LocalizationSettings.StringDatabase.SmartFormatter.SourceExtensions)
-            {
-                if (source is PersistentVariablesSource persistentVariablesSource)
-                {
-                    foreach (KeyValuePair<string, VariablesGroupAsset> group in persistentVariablesSource)
-                    {
-                        if (group.Value != null)
-                        {
-                            foreach (KeyValuePair<string, IVariable> variable in group.Value)
-                            {
-                                if (variable.Value is InputActionVariableGroup)
-                                {
-                                    _localizationVariablesAdded = true;
-                                    _localizationFormatString = $"{group.Key}.{variable.Key}";
-                                }
-                            }
-                        }
-                     
-                    }
-                }
-            }
         }
 
         #endregion
@@ -138,8 +143,6 @@ namespace games.noio.InputHints.Editor
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-
-            var config = target as InputHintsConfig;
 
             using (new EditorGUI.DisabledScope(true))
             {
@@ -155,17 +158,19 @@ namespace games.noio.InputHints.Editor
             EditorGUILayout.Space();
             if (_localizationVariablesAdded)
             {
-                EditorGUILayout.HelpBox($"You can insert Input Hints into Localized Strings using {{{_localizationFormatString}.ActionName}}", MessageType.Info);
+                EditorGUILayout.HelpBox(
+                    $"You can insert Input Hints into Localized Strings using {{{_localizationFormatString}.ActionName}}",
+                    MessageType.Info);
             }
             else
             {
                 using (new GUILayout.HorizontalScope())
                 {
-                    EditorGUILayout.HelpBox($"The Localization System is not set up to format Input Hints.", MessageType.Error);
+                    EditorGUILayout.HelpBox("The Localization System is not set up to format Input Hints.",
+                        MessageType.Error);
                     if (GUILayout.Button("Configure Now", GUILayout.Height(38)))
                     {
                         AddLocalizationVariables();
-                        
                     }
                 }
             }
@@ -184,7 +189,8 @@ namespace games.noio.InputHints.Editor
 
             if (DrawHeader(ref _controlTypesOpen, new GUIContent("Control Types"),
                     "Control Types take a connected controller and map specific Sprite Assets " +
-                    "to each relevant category."))
+                    "to each relevant category. Leave the last \"Devices\" string empty to use it as the " +
+                    "default."))
             {
                 EditorGUI.indentLevel++;
 
@@ -209,7 +215,7 @@ namespace games.noio.InputHints.Editor
                     {
                         serializedObject.ApplyModifiedProperties();
 
-                        EditorApplication.delayCall += () => { config.OnChanged(); };
+                        EditorApplication.delayCall += () => { _config.OnChanged(); };
                     }
                 }
             }
@@ -228,11 +234,74 @@ namespace games.noio.InputHints.Editor
             serializedObject.ApplyModifiedProperties();
         }
 
+        void CheckLocalizationVariablesAdded()
+        {
+            foreach (var source in LocalizationSettings.StringDatabase.SmartFormatter.SourceExtensions)
+            {
+                if (source is PersistentVariablesSource persistentVariablesSource)
+                {
+                    /*
+                     * Go through all the "Variables Group Assets"
+                     */
+                    foreach (KeyValuePair<string, VariablesGroupAsset> group in persistentVariablesSource)
+                    {
+                        if (group.Value != null)
+                        {
+                            /*
+                             * Go through each Variables Group
+                             */
+                            foreach (KeyValuePair<string, IVariable> variable in group.Value)
+                            {
+                                /*
+                                 * See if an InputActionVariable group is added,
+                                 * then we'll just assume it's this one
+                                 */
+                                if (variable.Value is InputActionVariableGroup inputActionVariableGroup)
+                                {
+                                    if (inputActionVariableGroup.Config == _config)
+                                    {
+                                        _localizationVariablesAdded = true;
+                                        _localizationFormatString = $"{group.Key}.{variable.Key}";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         void AddLocalizationVariables()
         {
-            // var globalLocalizationVariables = AssetDatabase.FindAssets()
-            
-            
+            VariablesGroupAsset defaultGroup = null;
+            PersistentVariablesSource variablesSource = null;
+            foreach (var source in LocalizationSettings.StringDatabase.SmartFormatter.SourceExtensions)
+            {
+                if (source is PersistentVariablesSource persistentVariablesSource)
+                {
+                    variablesSource = persistentVariablesSource;
+                    foreach (KeyValuePair<string, VariablesGroupAsset> group in persistentVariablesSource)
+                    {
+                        if (group.Key == DefaultVariablesGroupAssetName)
+                        {
+                            defaultGroup = group.Value;
+                        }
+                    }
+                }
+            }
+
+            if (defaultGroup == null)
+            {
+                defaultGroup = CreateInstance<VariablesGroupAsset>();
+                defaultGroup.name = "Global Localization Variables";
+                var folder = Path.GetDirectoryName(AssetDatabase.GetAssetPath(_config));
+                AssetDatabase.CreateAsset(defaultGroup, Path.Combine(folder, defaultGroup.name + ".asset"));
+            }
+
+            Undo.RecordObject(defaultGroup, "Set Up Input Hints");
+            defaultGroup.Add(DefaultVariableGroup, new InputActionVariableGroup() { Config = _config });
+            variablesSource.Add(DefaultVariablesGroupAssetName, defaultGroup);
+
             CheckLocalizationVariablesAdded();
         }
 

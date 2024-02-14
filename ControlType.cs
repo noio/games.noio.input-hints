@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Packages.games.noio.input_hints;
 using UnityEngine;
 
 namespace games.noio.InputHints
@@ -17,14 +18,15 @@ namespace games.noio.InputHints
         [SerializeField]
         string _devices = "";
 
-        [SerializeField] string _inputControlScheme;
+        [ControlSchemeDropdown] [SerializeField] string _inputControlScheme;
         [SerializeField] List<SpriteCategoryToAssetMapping> _spriteAssets;
 
         #endregion
 
         Regex _deviceMatcher;
 
-        public ControlType(string devices, string inputControlScheme, List<SpriteCategoryToAssetMapping> spriteAssets)
+        public ControlType(string              devices, string inputControlScheme,
+            List<SpriteCategoryToAssetMapping> spriteAssets)
         {
             _devices = devices;
             _inputControlScheme = inputControlScheme;
@@ -33,11 +35,9 @@ namespace games.noio.InputHints
 
         #region PROPERTIES
 
-        public string InputControlScheme
-        {
-            get => _inputControlScheme;
-            set => _inputControlScheme = value;
-        }
+        public string Devices => _devices;
+        public string InputControlScheme => _inputControlScheme;
+        public List<SpriteCategoryToAssetMapping> SpriteAssets => _spriteAssets;
 
         public Regex DeviceMatcher
         {
@@ -59,8 +59,13 @@ namespace games.noio.InputHints
             }
         }
 
-        public List<SpriteCategoryToAssetMapping> SpriteAssets => _spriteAssets;
+        public bool IsEmpty => string.IsNullOrEmpty(_inputControlScheme);
 
         #endregion
+
+        public override string ToString()
+        {
+            return $"{nameof(ControlType)} for {_devices} and scheme {_inputControlScheme}";
+        }
     }
 }
