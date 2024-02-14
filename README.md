@@ -7,7 +7,7 @@ execute a certain action.
 
 > Press [A] to Jump
 
-Unity's new Input and Localization systems are perfectly set create live dynamic Input Hints, based on
+Unity's new Input and Localization systems are a perfect basis for live dynamic Input Hints, changing depending on
 the actual bindings set up in the Input Actions. TextMesh Pro is used for displaying sprites inline in text strings.
 All that it needs is a little bit of plumbing, and this package is that plumbing!
 
