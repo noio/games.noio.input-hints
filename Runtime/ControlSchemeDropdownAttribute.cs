@@ -4,7 +4,7 @@
 using System;
 using UnityEngine;
 
-namespace Packages.games.noio.input_hints
+namespace games.noio.InputHints
 {
     public class ControlSchemeDropdownAttribute : PropertyAttribute
     {

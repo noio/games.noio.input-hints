@@ -1,16 +1,16 @@
 // (C)2024 @noio_games
 // Thomas van den Berg
 
-using Packages.games.noio.input_hints;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace games.noio.InputHints.Editor
 {
     [CustomPropertyDrawer(typeof(ControlSchemeDropdownAttribute))]
     public class ControlSchemeDropdownAttributeDrawer : PropertyDrawer
     {
+        #region MONOBEHAVIOUR METHODS
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             position = EditorGUI.PrefixLabel(position, label);
@@ -31,6 +31,6 @@ namespace games.noio.InputHints.Editor
             }
         }
 
-        
+        #endregion
     }
 }

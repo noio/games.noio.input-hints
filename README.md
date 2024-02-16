@@ -18,6 +18,7 @@ You will need actual icons to display in the text. I can recommend the excellent
 This package is based around the way they set up sprites.
 
 1. Install the package from the git URL
+2. I'm assuming you already have [Input Actions](https://docs.unity3d.com/Packages/com.unity.inputsystem@0.9/manual/ActionAssets.html) and the [Localization System](https://docs.unity3d.com/Packages/com.unity.localization@1.4/manual/QuickStartGuideWithVariants.html) set up.
 2. In Unity, go to `Assets/Create/Noio/Input Hints Config`
 3. Follow instructions on the Input Hints Config asset.
 4. Check out `DeviceDetectorSample.cs`

@@ -5,7 +5,7 @@ using games.noio.InputHints;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Packages.games.noio.input_hints
+namespace games.noio.InputHints
 {
     public class DeviceDetectorSample : MonoBehaviour
     {
