@@ -42,13 +42,11 @@ namespace games.noio.InputHints
         void OnEnable()
         {
             InputHints.UsedDeviceChanged += HandleUsedDeviceChanged;
-            Debug.Log($"F{Time.frameCount} OnEnable");
         }
 
         void OnDisable()
         {
             InputHints.UsedDeviceChanged -= HandleUsedDeviceChanged;
-            Debug.Log($"F{Time.frameCount} OnDisable");
         }
 
         #endregion
@@ -59,9 +57,9 @@ namespace games.noio.InputHints
             {
                 _usedControlType = GetControlType(InputHints.UsedDevice);
             }
-            
+
             var bindingIndex = action.GetBindingIndex(_usedControlType.InputControlScheme);
-            
+
             if (bindingIndex <= -1)
             {
 #if UNITY_EDITOR
@@ -208,11 +206,18 @@ namespace games.noio.InputHints
             return _spriteCategories.Select(s => s.Name);
         }
 
-        public static TMP_SpriteAsset[] GetSpriteAssetsInProject()
+        static TMP_SpriteAsset[] GetSpriteAssetsInProject()
         {
-            var spriteAssetsPath = TMP_Settings.defaultSpriteAssetPath;
-            var spriteAssets = Resources.LoadAll<TMP_SpriteAsset>(spriteAssetsPath);
-            return spriteAssets;
+            if (TMP_Settings.instance != null)
+            {
+                var spriteAssetsPath = TMP_Settings.defaultSpriteAssetPath;
+                var spriteAssets = Resources.LoadAll<TMP_SpriteAsset>(spriteAssetsPath);
+                return spriteAssets;
+            }
+            else
+            {
+                return Array.Empty<TMP_SpriteAsset>();
+            }
         }
 
         public IEnumerable<InputControlScheme> GetInputControlSchemes()

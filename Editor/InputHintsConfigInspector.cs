@@ -10,7 +10,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.SmartFormat.Extensions;
-using UnityEngine.Localization.SmartFormat.PersistentVariables; 
+using UnityEngine.Localization.SmartFormat.PersistentVariables;
 
 namespace games.noio.InputHints.Editor
 {
@@ -110,6 +110,7 @@ namespace games.noio.InputHints.Editor
                          */
                         var buttonRect = rect;
                         buttonRect.yMin += 1;
+
                         // buttonRect.height = EditorGUIUtility.singleLineHeight;
                         buttonRect.width = 60;
                         buttonRect.yMax -= 1;
@@ -117,23 +118,24 @@ namespace games.noio.InputHints.Editor
                         {
                             _config.SetControlTypeFromDevicesString(devicesString);
                         }
-                        
+
                         /*
                          * DRAW REST OF FIELDS
                          */
                         var fieldsRect = rect;
                         fieldsRect.xMin += 75;
+
                         // fieldsRect.yMin += 2 + EditorGUIUtility.singleLineHeight;
                         var label = string.IsNullOrEmpty(devicesString) ? "Default" : devicesString;
                         EditorGUI.PropertyField(fieldsRect, element, new GUIContent(label), true);
-
                     },
                     elementHeightCallback = index =>
                     {
                         var element = _controlTypesProp.GetArrayElementAtIndex(index);
                         return EditorGUI.GetPropertyHeight(element, true);
+
                         // +
-                               // EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                        // EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                     }
                 };
         }
@@ -152,28 +154,50 @@ namespace games.noio.InputHints.Editor
             EditorGUILayout.Space();
 
             // Draw the ReorderableList instead of the default property field for _spriteCategoriesProp
-            EditorGUILayout.PropertyField(_inputActionsProp);
-            EditorGUILayout.PropertyField(_spriteFormatProp);
 
-            EditorGUILayout.Space();
-            if (_localizationVariablesAdded)
+            bool inputActionsLinked = _inputActionsProp.objectReferenceValue != null;
+            var localizationSettings = LocalizationSettings.Instance;
+
+            if (inputActionsLinked == false)
             {
-                EditorGUILayout.HelpBox(
-                    $"You can insert Input Hints into Localized Strings using {{{_localizationFormatString}.ActionName}}",
-                    MessageType.Info);
+                EditorGUILayout.HelpBox("Please create and link an Input Action Asset", MessageType.Error);
             }
             else
             {
-                using (new GUILayout.HorizontalScope())
+                if (_localizationVariablesAdded)
                 {
-                    EditorGUILayout.HelpBox("The Localization System is not set up to format Input Hints.",
-                        MessageType.Error);
-                    if (GUILayout.Button("Configure Now", GUILayout.Height(38)))
+                    EditorGUILayout.HelpBox(
+                        $"You can insert Input Hints into Localized Strings using {{{_localizationFormatString}.ActionName}}",
+                        MessageType.Info);
+                }
+                else
+                {
+                    using (new GUILayout.HorizontalScope())
                     {
-                        AutoConfigureSetup();
+                        EditorGUILayout.HelpBox(
+                            "The Localization System is not set up to format Input Hints.",
+                            MessageType.Error);
+                        if (GUILayout.Button("Configure Now", GUILayout.Height(38)))
+                        {
+                            AutoConfigureSetup();
+                        }
                     }
                 }
             }
+
+            EditorGUILayout.PropertyField(_inputActionsProp);
+            using (new EditorGUI.DisabledScope(true))
+            {
+                EditorGUILayout.ObjectField(new GUIContent("Localization Settings"), localizationSettings,
+                    typeof(LocalizationSettings));
+            }
+
+            EditorGUILayout.PropertyField(_spriteFormatProp);
+
+            EditorGUILayout.Space();
+            using var scope =
+                new EditorGUI.DisabledScope(inputActionsLinked == false ||
+                                            _localizationVariablesAdded == false);
 
             if (DrawHeader(ref _categoriesOpen, new GUIContent("Categories"),
                     "Categories are mapped to specific TMP_SpriteAssets by the Control Type."))
@@ -300,7 +324,7 @@ namespace games.noio.InputHints.Editor
                 var folder = Path.GetDirectoryName(AssetDatabase.GetAssetPath(_config));
                 AssetDatabase.CreateAsset(defaultGroup, Path.Combine(folder, defaultGroup.name + ".asset"));
             }
-            
+
             /*
              * Add Variables Group Asset to the Localization Settings "Variables Source"
              */
@@ -310,9 +334,9 @@ namespace games.noio.InputHints.Editor
              * Now we need to create & add our InputActionVariableGroup (to the Asset)
              */
             var variableGroup = new InputActionVariableGroup() { Config = _config };
-            
+
             Undo.RecordObject(defaultGroup, "Set Up Input Hints");
-            
+
             /*
              * Need to do some hacking to add a managed Reference to the GroupsAsset
              * (just calling "add" is not enough because it uses SerializeReference)
