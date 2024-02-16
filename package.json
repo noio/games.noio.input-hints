@@ -1,6 +1,6 @@
 {
   "name": "games.noio.input-hints",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "displayName": "Input Hints",
   "description": "Use Unity's Localization System to show Input Control Hints",
   "unity": "2022.2",
