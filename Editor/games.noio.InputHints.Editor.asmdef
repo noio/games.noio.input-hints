@@ -1,0 +1,22 @@
+{
+    "name": "games.noio.InputHints.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:f5a062bd525a84181bde8a099d881c55",
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:eec0964c48f6f4e40bc3ec2257ccf8c5",
+        "GUID:2e77701fe0ceda44fb763f03ee704c37",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

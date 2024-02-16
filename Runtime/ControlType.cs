@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Packages.games.noio.input_hints;
 using UnityEngine;
 
 namespace games.noio.InputHints
@@ -12,7 +11,7 @@ namespace games.noio.InputHints
     [Serializable]
     public class ControlType
     {
-        #region PUBLIC AND SERIALIZED FIELDS
+        #region SERIALIZED FIELDS
 
         [Tooltip("A regular expression that is matched against the current Input Device's path.")]
         [SerializeField]

@@ -10,7 +10,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.SmartFormat.Extensions;
-using UnityEngine.Localization.SmartFormat.PersistentVariables;
+using UnityEngine.Localization.SmartFormat.PersistentVariables; 
 
 namespace games.noio.InputHints.Editor
 {
@@ -170,7 +170,7 @@ namespace games.noio.InputHints.Editor
                         MessageType.Error);
                     if (GUILayout.Button("Configure Now", GUILayout.Height(38)))
                     {
-                        AddLocalizationVariables();
+                        AutoConfigureSetup();
                     }
                 }
             }
@@ -271,7 +271,7 @@ namespace games.noio.InputHints.Editor
             }
         }
 
-        void AddLocalizationVariables()
+        void AutoConfigureSetup()
         {
             VariablesGroupAsset defaultGroup = null;
             PersistentVariablesSource variablesSource = null;
@@ -290,6 +290,9 @@ namespace games.noio.InputHints.Editor
                 }
             }
 
+            /*
+             * Create a Variables Group Asset if it doesn't exist
+             */
             if (defaultGroup == null)
             {
                 defaultGroup = CreateInstance<VariablesGroupAsset>();
@@ -297,10 +300,36 @@ namespace games.noio.InputHints.Editor
                 var folder = Path.GetDirectoryName(AssetDatabase.GetAssetPath(_config));
                 AssetDatabase.CreateAsset(defaultGroup, Path.Combine(folder, defaultGroup.name + ".asset"));
             }
-
-            Undo.RecordObject(defaultGroup, "Set Up Input Hints");
-            defaultGroup.Add(DefaultVariableGroup, new InputActionVariableGroup() { Config = _config });
+            
+            /*
+             * Add Variables Group Asset to the Localization Settings "Variables Source"
+             */
             variablesSource.Add(DefaultVariablesGroupAssetName, defaultGroup);
+
+            /*
+             * Now we need to create & add our InputActionVariableGroup (to the Asset)
+             */
+            var variableGroup = new InputActionVariableGroup() { Config = _config };
+            
+            Undo.RecordObject(defaultGroup, "Set Up Input Hints");
+            
+            /*
+             * Need to do some hacking to add a managed Reference to the GroupsAsset
+             * (just calling "add" is not enough because it uses SerializeReference)
+             */
+            var groupSerializedOb = new SerializedObject(defaultGroup);
+            var variablesList = groupSerializedOb.FindProperty("m_Variables");
+            var index = variablesList.arraySize;
+            variablesList.InsertArrayElementAtIndex(index);
+            var element = variablesList.GetArrayElementAtIndex(index);
+            var variable = element.FindPropertyRelative("variable");
+            variable.managedReferenceValue = variableGroup;
+
+            var name = element.FindPropertyRelative("name");
+            name.stringValue = DefaultVariableGroup;
+            groupSerializedOb.ApplyModifiedProperties();
+
+            // defaultGroup.Add(DefaultVariableGroup, variableGroup);
 
             CheckLocalizationVariablesAdded();
         }

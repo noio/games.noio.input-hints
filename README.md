@@ -18,10 +18,25 @@ You will need actual icons to display in the text. I can recommend the excellent
 This package is based around the way they set up sprites.
 
 1. Install the package from the git URL
-2. I'm assuming you already have [Input Actions](https://docs.unity3d.com/Packages/com.unity.inputsystem@0.9/manual/ActionAssets.html) and the [Localization System](https://docs.unity3d.com/Packages/com.unity.localization@1.4/manual/QuickStartGuideWithVariants.html) set up.
-2. In Unity, go to `Assets/Create/Noio/Input Hints Config`
-3. Follow instructions on the Input Hints Config asset.
-4. Check out `DeviceDetectorSample.cs`
+2. I'm assuming you already have [Input Actions](https://docs.unity3d.com/Packages/com.unity.inputsystem@0.9/manual/ActionAssets.html) 
+   and the [Localization System](https://docs.unity3d.com/Packages/com.unity.localization@1.4/manual/QuickStartGuideWithVariants.html) set up.
+3. In Unity, go to `Assets/Create/Noio/Input Hints Config`
+4. Follow instructions on the Input Hints Config asset.
+5. Check out `DeviceDetectorSample.cs`
+
+### Manual Setup
+If the button to automatically hook up the Localization Settings "Smart Format Source" does not work, this is
+the manual setup required:
+
+1. Click to **Assets > Create > Localization > Variables Group**
+2. In the newly created _Variables Group Asset_, add a variable, name it "input" and link the Input Hints Config.
+
+![Set Up Input Variables](Docs~/manual_settings_input_variable.png)
+
+3. Go into the Localization Settings Asset and open up **String Database > Smart Format > Sources > Persistent Variables Source**
+4. Add the _Variables Group Asset_ that you created in Step 1:
+
+![Added Variables Group in Settings](Docs~/manual_setup_localization_settings.png)
                                                                    
 
 ## Sample Setup
