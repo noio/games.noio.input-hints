@@ -152,7 +152,6 @@ namespace games.noio.InputHints.Editor
             }
 
             EditorGUILayout.Space();
-
             // Draw the ReorderableList instead of the default property field for _spriteCategoriesProp
 
             bool inputActionsLinked = _inputActionsProp.objectReferenceValue != null;
@@ -185,6 +184,8 @@ namespace games.noio.InputHints.Editor
                 }
             }
 
+            EditorGUILayout.Space();
+            
             EditorGUILayout.PropertyField(_inputActionsProp);
             using (new EditorGUI.DisabledScope(true))
             {
