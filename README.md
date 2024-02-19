@@ -11,7 +11,7 @@ Unity's new Input and Localization systems are perfect for displaying dynamic In
 the actual bindings set up in the Input Actions. TextMesh Pro is used for displaying sprites inline in text strings.
 All that it needs is a little bit of plumbing, and this package is that plumbing!
 
-## How to use
+## Installation
 
 You will need actual icons to display in the text. I can recommend the excellent 
 [PC & Consoles Controller Buttons Icons Pack](https://assetstore.unity.com/packages/2d/gui/icons/pc-consoles-controller-buttons-icons-pack-85215).
@@ -24,7 +24,7 @@ This package is based around the way they set up sprites.
 4. Follow instructions on the Input Hints Config asset.
 5. Check out `DeviceDetectorSample.cs`
 
-### Manual Setup
+### Manual Installation
 If the button to automatically hook up the Localization Settings "Smart Format Source" does not work, this is
 the manual setup required:
 
@@ -37,11 +37,25 @@ the manual setup required:
 4. Add the _Variables Group Asset_ that you created in Step 1:
 
 ![Added Variables Group in Settings](Docs~/manual_setup_localization_settings.png)
-                                                                   
 
-## Sample Setup
+## How to Use     
+
+### Sample Configuration
 
 See below for a sample setup that uses the actions defined in Unity's Default Input Action Map (Look, Move, Fire), and 
 the controller icons linked above.
 
 ![Sample Setup](Docs~/example_setup.png)
+
+## Common Issues
+
+### Warnings like '_No binding found for ActionName with Control Scheme "Keyboard&Mouse"_'
+
+Makes sure to select at least one _"Use in control scheme"_ for each binding in the Input Actions.
+
+![Input Actions Settings: Use in control scheme](Docs~/use_in_control_scheme.png)
+
+### Texts are not updating when switching input device
+
+Try using `LocalizeStringEvent` instead of `GameObjectLocalizer`. It seems that the latter component sometimes
+does not respond when a localization variable is changed.
