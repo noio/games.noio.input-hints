@@ -10,3 +10,5 @@ TODO:
 [x] Make UI (IMGUI or UI Toolkit??)
 [x] Button to set up default Global Localization Variables + Input Action Variable Group
 [x] Auto select SpriteCategory when adding new mapping from missing.
+[ ] Composite bindings selection (or show all)
+[ ] New new input system: test with LocalizeGameObject component

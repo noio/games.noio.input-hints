@@ -1,6 +1,6 @@
 {
   "name": "games.noio.input-hints",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "displayName": "Input Hints",
   "description": "Use Unity's Localization System to show Input Control Hints",
   "unity": "2022.2",
@@ -8,7 +8,6 @@
   "dependencies": {
     "com.unity.inputsystem": "1.7.0",
     "com.unity.localization": "1.4.5",
-    "com.unity.textmeshpro": "3.0.6"
   },
   "keywords": [
     "Build"
