@@ -60,11 +60,16 @@ namespace games.noio.InputHints
 
             var bindingIndex = action.GetBindingIndex(_usedControlType.InputControlScheme);
 
+            // if (action.bindings[bindingIndex].isPartOfComposite)
+            // {
+            //     PrintBinding(action, bindingIndex - 1);
+            // }
+
             if (bindingIndex <= -1)
             {
 #if UNITY_EDITOR
                 Debug.LogWarning($"No binding found for \"{action.name}\" " +
-                                 $"with Control Scheme \"{_usedControlType.InputControlScheme}\"");
+                                 $"with Control Scheme \"{_usedControlType.InputControlScheme}\"",this);
 #endif
                 return $"[{action.name}]";
             }
@@ -72,6 +77,8 @@ namespace games.noio.InputHints
             var path = action.bindings[bindingIndex].path;
 
             InputControlPath.ToHumanReadableString(path, out _, out var controlPath);
+
+            // PrintBinding(action, bindingIndex);
 
             // var bindingString = action.GetBindingDisplayString(bindingIndex,
             // InputBinding.DisplayStringOptions.DontIncludeInteractions);
@@ -119,6 +126,25 @@ namespace games.noio.InputHints
 #endif
 
             return $"[{controlPath}]";
+        }
+
+        void PrintBinding(InputAction action, int bindingIndex)
+        {
+            var binding = action.bindings[bindingIndex];
+            var bindingPath = binding.path;
+            var displayString = action.GetBindingDisplayString(bindingIndex, out _, out string controlPath);
+            var humanReadable =
+                InputControlPath.ToHumanReadableString(bindingPath, out _, out var humanReadablePath);
+            var composite = binding.isPartOfComposite
+                ? "(Part of Composite)"
+                : binding.isComposite
+                    ? "(Composite)"
+                    : "";
+
+            Debug.Log($"[{action.name}] " +
+                      $"Path: \"{bindingPath}\" " +
+                      $"DisplayString: \"{displayString}\"+\"{controlPath}\" " +
+                      $"HumanReadable: \"{humanReadable}\"+\"{humanReadablePath}\" {composite}");
         }
 
         public void OnChanged()

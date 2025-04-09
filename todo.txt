@@ -12,3 +12,16 @@ TODO:
 [x] Auto select SpriteCategory when adding new mapping from missing.
 [ ] Composite bindings selection (or show all)
 [ ] New new input system: test with LocalizeGameObject component
+
+
+The way to deal with Composite bindings is probably to make them a "Formatter" with : syntax.
+
+Drilling down the groups with period (.) would be nice but it would require some weird logic
+to determine whether to return an IVariable (if there's no composite indicator) or an IVariableGroup 
+if there IS a composite indicator. That's kind of hard because you don't know beforehand (While parsing the Selector)
+whether it's going to have ANOTHER sub selector. I.e. while parsing the "Move" part of {global.input.Move} you do not
+know if it is followed by ".Up", so you cannot decide whether to return an IVariable (for "Move") or an IVariableGroup
+that allows parsing of ".Up". 
+
+So doing it as a formatter with :Up is easier, then just always return an IVariable
+and decide how to treat composites when putting together the sprite in GetSprite. 

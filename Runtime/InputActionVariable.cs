@@ -27,12 +27,13 @@ namespace  games.noio.InputHints
 
         public object GetSourceValue(ISelectorInfo selector)
         {
+            // Debug.Log($"F{Time.frameCount} InputActionVariable.GetSourceValue({selector.SelectorOperator}{selector.SelectorText})");
             return _source.GetSprite(_action);
         }
 
         public void OnValueChanged()
         {
-            Debug.Log($"F{Time.frameCount} Sending OnValueChanged to {this} Has Listeners: {ValueChanged != null}");
+            // Debug.Log($"F{Time.frameCount} Sending OnValueChanged to {this} Has Listeners: {ValueChanged != null}");
             ValueChanged?.Invoke(this);
         }
     }

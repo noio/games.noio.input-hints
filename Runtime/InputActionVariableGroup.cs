@@ -1,37 +1,44 @@
+// (C)2024 @noio_games
+// Thomas van den Berg
+
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.Localization.SmartFormat.Core.Extensions;
 using UnityEngine.Localization.SmartFormat.PersistentVariables;
-using UnityEngine.Serialization;
-using Object = UnityEngine.Object;
 
-namespace  games.noio.InputHints
+namespace games.noio.InputHints
 {
     [Serializable]
     public class InputActionVariableGroup : IVariableValueChanged, IVariableGroup
     {
         public event Action<IVariable> ValueChanged;
 
-        #region PUBLIC AND SERIALIZED FIELDS
+        #region SERIALIZED FIELDS
 
-        [SerializeField]
-        InputHintsConfig _config;
+        [SerializeField] InputHintsConfig _config;
 
         #endregion
 
         Dictionary<string, InputActionVariable> _cachedVariables;
+
+        #region PROPERTIES
+
         public InputHintsConfig Config
         {
             get => _config;
             set => _config = value;
         }
 
+        #endregion
+
         #region INTERFACE IMPLEMENTATIONS
 
         public bool TryGetValue(string key, out IVariable value)
         {
+            // Debug.Log($"F{Time.frameCount} InputActionVariableGroup.TryGetValue({key})");
+                
             if (_cachedVariables == null)
             {
                 _config.Changed += OnValueChanged;
@@ -72,6 +79,10 @@ namespace  games.noio.InputHints
 
         public object GetSourceValue(ISelectorInfo selector)
         {
+            // Debug.Log($"F{Time.frameCount} InputActionVariableGroup.GetSourceValue({selector.SelectorOperator}{selector.SelectorText})");
+            // Debug.Log($"F{Time.frameCount} GetSourceVal");
+            // Debug.Log(
+                // $"F{Time.frameCount} GetSourceVal {selector.SelectorText} {selector.CurrentValue} {selector.SelectorIndex} {selector.Result} {selector.SelectorOperator}");
             return this;
         }
 
